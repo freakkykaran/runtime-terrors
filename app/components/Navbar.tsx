@@ -87,7 +87,7 @@ export default function Navbar() {
 
       {/* Mobile Dropdown Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-black/95 backdrop-blur-2xl border-b border-white/10 px-6 py-6 space-y-4 text-sm font-mono animate-fadeIn">
+        <div className="md:hidden bg-black/95 backdrop-blur-2xl border-b border-white/10 px-6 py-6 space-y-4 text-sm font-mono transition-all">
           <div className="flex flex-col space-y-3 pb-4 border-b border-white/10">
             <Link href="/" onClick={() => setMobileMenuOpen(false)} className="text-neutral-300 hover:text-white py-1">Home</Link>
             <Link href="/products" onClick={() => setMobileMenuOpen(false)} className="text-neutral-300 hover:text-white py-1">Shop</Link>
