@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Navbar from "../components/Navbar";
 
 export default function OrderTrackingPage() {
   const [orderId, setOrderId] = useState("");
@@ -11,7 +10,6 @@ export default function OrderTrackingPage() {
   const handleTrack = (e: React.FormEvent) => {
     e.preventDefault();
     if (!orderId) return;
-    // Mock tracking data for hackathon demo
     setTrackedOrder({
       id: orderId,
       status: "Dispatched from Aerospace Hub",
@@ -23,8 +21,6 @@ export default function OrderTrackingPage() {
 
   return (
     <div className="min-h-screen bg-black text-white font-mono selection:bg-emerald-500 selection:text-black">
-      <Navbar />
-      
       <main className="max-w-4xl mx-auto px-4 py-16">
         <div className="text-center space-y-4 mb-12">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-wider uppercase">Order Tracking</h1>
