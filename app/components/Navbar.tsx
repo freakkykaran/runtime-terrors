@@ -7,12 +7,15 @@ import { useCurrency } from "../context/CurrencyContext";
 import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
-  const { cart } = useCart();
-  const { currency, setCurrency } = useCurrency();
-  const { user, logout } = useAuth();
+  const { cart } = useCart() as { cart: any[] };
+  const currencyContext = useCurrency() as any;
+  const currency = currencyContext?.currency || "USD";
+  const setCurrency = currencyContext?.setCurrency || currencyContext?.toggleCurrency || (() => {});
+  
+  const { user, logout } = useAuth() as { user: any; logout: () => void };
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
   return (
     <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/10">
@@ -38,7 +41,11 @@ export default function Navbar() {
           
           {/* Currency Switcher */}
           <button
-            onClick={() => setCurrency(currency === "USD" ? "INR" : "USD")}
+            onClick={() => {
+              if (typeof setCurrency === 'function') {
+                setCurrency(currency === "USD" ? "INR" : "USD");
+              }
+            }}
             className="px-2.5 py-1 rounded-full border border-white/10 bg-white/5 text-[10px] font-mono text-neutral-300 hover:bg-white/10 transition"
           >
             {currency} {currency === "USD" ? "$" : "₹"}
@@ -61,7 +68,7 @@ export default function Navbar() {
             {user ? (
               <div className="flex items-center gap-3">
                 <Link href="/profile" className="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center font-bold text-xs text-white">
-                  {user.name.split(" ").map(n => n[0]).join("")}
+                  {user.name ? user.name.split(" ").map((n: string) => n[0]).join("") : "U"}
                 </Link>
                 <button onClick={logout} className="text-xs font-mono text-neutral-400 hover:text-red-400 transition">
                   Logout
@@ -101,9 +108,9 @@ export default function Navbar() {
               <>
                 <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 text-neutral-200 py-1">
                   <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold">
-                    {user.name[0]}
+                    {user.name ? user.name[0] : "U"}
                   </span>
-                  <span>{user.name}</span>
+                  <span>{user.name || "User"}</span>
                 </Link>
                 <button 
                   onClick={() => { logout(); setMobileMenuOpen(false); }} 
