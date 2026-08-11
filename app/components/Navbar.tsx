@@ -76,9 +76,9 @@ export default function Navbar() {
             {currency === "USD" ? "$ USD" : "₹ INR"}
           </button>
 
-          {/* Cart Link */}
+          {/* Cart Link - Corrected to /checkout */}
           <Link
-            href="/cart"
+            href="/checkout"
             className="px-4 py-2 rounded-lg bg-emerald-500 text-black font-bold text-xs hover:bg-emerald-400 transition font-mono"
           >
             Cart
@@ -104,6 +104,7 @@ export default function Navbar() {
           <Link href="/account" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition">Account</Link>
           <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition">Contact Us</Link>
           <Link href="/wishlist" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition">Wishlist ❤️</Link>
+          <Link href="/checkout" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition text-emerald-400 font-bold">Cart / Checkout</Link>
         </div>
       )}
     </header>
