@@ -1,122 +1,138 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useCart } from "../context/CartContext";
 
 export default function Navbar() {
+  const { cart, wishlist, searchQuery, setSearchQuery } = useCart() as any;
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currency, setCurrency] = useState("USD");
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const toggleCurrency = () => {
-    setCurrency((prev) => (prev === "USD" ? "INR" : "USD"));
+  // Authentication States
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [savedName, setSavedName] = useState("");
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    router.push(`/products?search=${searchQuery}`);
   };
 
-  const handleWishlistClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    alert("Wishlist feature coming soon! Aapke items save rakhne ke liye jald update aayega.");
-  };
+  // Real-time Auth Checker
+  useEffect(() => {
+    const checkAuth = () => {
+      if (typeof window !== "undefined") {
+        const profile = localStorage.getItem("vesper_user_profile");
+        if (profile) {
+          setSavedName(JSON.parse(profile).name);
+          setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(false);
+          setSavedName("");
+        }
+      }
+    };
+
+    // Initial check
+    checkAuth();
+
+    // Event listener for tab sync & manual updates
+    window.addEventListener("storage", checkAuth);
+    return () => window.removeEventListener("storage", checkAuth);
+  }, []);
+
+  const cartCount = Array.isArray(cart) ? cart.reduce((acc: number, item: any) => acc + (item.quantity || 1), 0) : 0;
+  const wishlistCount = Array.isArray(wishlist) ? wishlist.length : 0;
 
   return (
-    <header className="sticky top-0 z-50 bg-black/85 backdrop-blur-xl border-b border-white/10 px-4 sm:px-8 py-4">
+    <header className="sticky top-0 z-50 bg-[#020202]/80 backdrop-blur-3xl border-b border-white/5 px-4 sm:px-8 py-4 font-mono shadow-[0_10px_30px_-10px_rgba(0,0,0,0.8)]">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         
         {/* Brand Logo */}
-        <Link href="/" className="text-base sm:text-lg font-bold tracking-widest text-white uppercase font-mono flex items-center gap-2">
-          <span className="text-emerald-400">🕷️</span>
+        <Link href="/" className="text-base sm:text-lg font-black tracking-widest text-white uppercase flex items-center gap-2 group">
+          <span className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.6)] group-hover:scale-110 transition-transform">🕷️</span>
           <span>Vesper X</span>
         </Link>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-6 text-sm text-neutral-300 font-mono">
+        {/* Desktop Links */}
+        <nav className="hidden lg:flex items-center gap-7 text-[11px] text-neutral-400 font-bold tracking-widest uppercase">
           <Link href="/" className="hover:text-white transition">Home</Link>
-          <Link href="/shop" className="hover:text-white transition">Shop</Link>
+          <Link href="/products" className="hover:text-white transition">Shop</Link>
           <Link href="/compare" className="hover:text-white transition">Compare</Link>
           <Link href="/order-tracking" className="hover:text-white transition">Orders</Link>
-          <Link href="/profile" className="hover:text-white transition">Account</Link>
           <Link href="/contact" className="hover:text-white transition">Contact Us</Link>
+          
+          {/* DYNAMIC AUTH LINK (Idea Implemented) */}
+          {isLoggedIn ? (
+            <Link href="/profile" className="hover:text-white transition text-neutral-200 border-b border-white/10 pb-0.5">
+              [{savedName}]
+            </Link>
+          ) : (
+            <Link href="/login" className="hover:text-white transition text-neutral-200 border-b border-white/10 pb-0.5">
+              [SIGN IN]
+            </Link>
+          )}
         </nav>
 
         {/* Right Actions */}
         <div className="flex items-center gap-3">
           
-          {/* Search Toggle */}
-          <div className="relative hidden sm:block">
+          {/* Search Bar */}
+          <form onSubmit={handleSearchSubmit} className="relative hidden sm:flex items-center">
             {searchOpen ? (
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 <input
                   type="text"
-                  placeholder="Search products..."
+                  placeholder="SEARCH..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   autoFocus
-                  className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-emerald-400 w-44 font-mono"
+                  className="px-4 py-1.5 rounded-full bg-zinc-900/60 border border-white/10 text-xs text-white focus:outline-none focus:border-white w-44 backdrop-blur-md uppercase tracking-wider"
                 />
-                <button
-                  onClick={() => setSearchOpen(false)}
-                  className="text-xs text-neutral-400 hover:text-white px-1"
-                >
-                  ✕
-                </button>
+                <button type="button" onClick={() => setSearchOpen(false)} className="text-xs text-neutral-500 hover:text-white font-black transition">✕</button>
               </div>
             ) : (
-              <button
-                onClick={() => setSearchOpen(true)}
-                className="p-2 rounded-lg bg-white/5 border border-white/10 text-neutral-300 hover:text-white hover:bg-white/10 transition text-xs flex items-center gap-1.5"
-                title="Search"
-              >
-                <span>🔍</span>
+              <button type="button" onClick={() => setSearchOpen(true)} className="p-2 rounded-full bg-zinc-900/50 border border-white/5 text-neutral-400 hover:text-white transition text-xs backdrop-blur-md">
+                🔍
               </button>
             )}
-          </div>
+          </form>
 
-          {/* Wishlist Button (Handled safely without 404) */}
-          <button
-            onClick={handleWishlistClick}
-            className="p-2 rounded-lg bg-white/5 border border-white/10 text-neutral-300 hover:text-white hover:bg-white/10 transition text-xs flex items-center gap-1"
-            title="Wishlist"
-          >
-            <span>❤️</span>
-          </button>
-
-          {/* Currency Switcher */}
-          <button
-            onClick={toggleCurrency}
-            className="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-neutral-300 hover:text-white hover:bg-white/10 transition text-xs font-bold font-mono"
-          >
-            {currency === "USD" ? "$ USD" : "₹ INR"}
-          </button>
-
-          {/* Cart / Checkout Link */}
-          <Link
-            href="/checkout"
-            className="px-4 py-2 rounded-lg bg-emerald-500 text-black font-bold text-xs hover:bg-emerald-400 transition font-mono"
-          >
-            Cart
+          {/* Wishlist Link */}
+          <Link href="/wishlist" className="relative p-2.5 rounded-full bg-zinc-900/50 border border-white/5 text-neutral-400 hover:text-white transition text-xs backdrop-blur-md flex items-center justify-center">
+            🖤
+            {wishlistCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-white text-black text-[9px] font-black px-1.5 py-0.5 rounded-full shadow-lg">{wishlistCount}</span>
+            )}
           </Link>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg bg-white/5 border border-white/10 text-neutral-300 hover:text-white transition text-sm"
-          >
-            {mobileMenuOpen ? "✕" : "☰"}
+          {/* Dark Glass Oval Cart Button */}
+          <Link href="/checkout" className="px-5 py-2.5 rounded-full bg-zinc-900/90 border border-white/10 text-white hover:bg-white hover:text-black font-black text-[10px] transition-all duration-300 uppercase tracking-widest backdrop-blur-xl flex items-center gap-2 shadow-[0_0_15px_rgba(255,255,255,0.03)] active:scale-95">
+            Cart <span>[{cartCount}]</span>
+          </Link>
+
+          {/* Mobile Menu Toggle */}
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden p-2 text-neutral-400 hover:text-white transition">
+            ☰
           </button>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden mt-4 pt-4 border-t border-white/10 flex flex-col gap-3 text-sm text-neutral-300 font-mono pb-2">
-          <Link href="/" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition">Home</Link>
-          <Link href="/shop" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition">Shop</Link>
-          <Link href="/compare" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition">Compare</Link>
-          <Link href="/order-tracking" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition">Orders</Link>
-          <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition">Account (/profile)</Link>
-          <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition">Contact Us</Link>
-          <button onClick={handleWishlistClick} className="text-left hover:text-white transition">Wishlist ❤️</button>
-          <Link href="/checkout" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition text-emerald-400 font-bold">Cart & Checkout</Link>
+        <div className="lg:hidden mt-4 pt-4 border-t border-white/5 flex flex-col gap-4 text-xs font-bold text-neutral-400 font-mono tracking-widest uppercase pb-2">
+          <Link href="/" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+          <Link href="/products" onClick={() => setMobileMenuOpen(false)}>Shop</Link>
+          <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>Contact Us</Link>
+          
+          {/* Dynamic Auth for Mobile */}
+          {isLoggedIn ? (
+            <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="text-white">Account [{savedName}]</Link>
+          ) : (
+            <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="text-white">Sign In / Register</Link>
+          )}
         </div>
       )}
     </header>

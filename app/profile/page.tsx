@@ -1,244 +1,278 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function ProfilePage() {
-  const { user, updateUser, logout } = useAuth();
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"orders" | "addresses" | "payments" | "edit">("orders");
+  // 1. User Identity Core States
+  const [user, setUser] = useState({
+    name: "Karan Kumar",
+    email: "karan.kumar@vesper.io",
+    phone: "+91 9876543210",
+    wallet: 7500.00,
+  });
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState(user);
   
-  const [editName, setEditName] = useState("");
-  const [editEmail, setEditEmail] = useState("");
-  const [editPhone, setEditPhone] = useState("");
-  const [editAddress, setEditAddress] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
+  // 2. Delivery Vector Node Data
+  const [address, setAddress] = useState({
+    street: "123, Vesper Grid, Sector 9",
+    city: "Kolkata",
+    state: "West Bengal",
+    pincode: "700001",
+  });
 
+  // 3. Saved Secure Payment Methods Logs
+  const [paymentMethods, setPaymentMethods] = useState([
+    { id: "pm_1", type: "Visa Black Card", expiry: "12/29", last4: "8894" },
+    { id: "pm_2", type: "Cash on Delivery", expiry: "N/A", last4: "COD" }
+  ]);
+
+  const [orders, setOrders] = useState<any[]>([]);
+
+  // Real-time hooks synchronization loop
   useEffect(() => {
-    if (!user) {
-      router.push("/login");
+    // Sync custom workspace user data profile
+    const savedUser = localStorage.getItem("vesper_user_profile");
+    if (savedUser) {
+      const parsed = JSON.parse(savedUser);
+      setUser(parsed);
+      setEditForm(parsed);
     } else {
-      setEditName(user.name);
-      setEditEmail(user.email);
-      setEditPhone(user.phone || "+91 98765 43210");
-      setEditAddress(user.address || "Sector V, Salt Lake, Kolkata, 700091");
+      // Setup initial state if storage node empty
+      localStorage.setItem("vesper_user_profile", JSON.stringify(user));
     }
-  }, [user, router]);
 
-  if (!user) return null;
-
-  const getInitials = (fullName: string) => {
-    const parts = fullName.trim().split(" ");
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
-    } else if (parts.length === 1 && parts[0].length > 0) {
-      return parts[0].substring(0, 2).toUpperCase();
+    // Sync checkout transactions automatically
+    const savedOrders = localStorage.getItem("vesper_orders");
+    if (savedOrders) {
+      setOrders(JSON.parse(savedOrders));
     }
-    return "KK";
+  }, []);
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    setUser(editForm);
+    localStorage.setItem("vesper_user_profile", JSON.stringify(editForm));
+    setIsEditing(false);
+    
+    // Dispatch local notification sync event to notify navbar layout component instantly
+    window.dispatchEvent(new Event("storage"));
+    alert("System database modified successfully.");
   };
 
-  const handleUpdateProfile = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateUser({
-      name: editName,
-      email: editEmail,
-      phone: editPhone,
-      address: editAddress
-    });
-    setSuccessMsg("Profile details and avatar updated successfully!");
-    setTimeout(() => setSuccessMsg(""), 3000);
+  // HARD REFRESH TERMINATE ROUTINE (Forces immediate Navbar Re-Evaluation)
+  const handleLogout = () => {
+    localStorage.removeItem("vesper_user_profile");
+    alert("Secure logout complete. Terminating current databank session...");
+    window.location.href = "/";
   };
 
   return (
-    <main className="min-h-screen bg-black text-white px-6 pt-32 pb-24 relative overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-neutral-900/30 rounded-full blur-[150px] pointer-events-none opacity-50"></div>
-
-      <div className="max-w-5xl mx-auto relative z-10 space-y-10">
+    <div className="min-h-screen bg-[#020202] text-white font-mono p-4 sm:p-8 selection:bg-neutral-800 selection:text-white pb-24">
+      <main className="max-w-6xl mx-auto space-y-10">
         
-        {/* User Info Header */}
-        <div className="bg-white/[0.01] border border-white/10 rounded-3xl p-8 backdrop-blur-sm flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
-          <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-neutral-800 to-neutral-600 border border-white/20 flex items-center justify-center text-2xl font-bold font-mono shadow-xl text-white">
-              {getInitials(user.name)}
-            </div>
-            <div className="text-center md:text-left space-y-1">
-              <span className="text-xs font-mono uppercase tracking-widest text-emerald-400">Verified Quantum Member</span>
-              <h1 className="text-2xl md:text-3xl font-bold">{user.name}</h1>
-              <p className="text-neutral-400 text-xs md:text-sm">{user.email} • Kolkata, India</p>
-            </div>
+        {/* VIP Profile Card Header Grid Layout (Pure Dark Smoked Glass Effect) */}
+        <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-zinc-950/70 via-zinc-900/40 to-black border border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 relative overflow-hidden backdrop-blur-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)]">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/[0.01] rounded-full blur-3xl pointer-events-none"></div>
+          
+          <div className="space-y-4">
+            <span className="inline-block text-[10px] bg-white/[0.04] border border-white/10 px-3 py-1 rounded-full text-neutral-400 tracking-widest uppercase font-bold shadow-inner">
+              Secure Terminal / Account Node
+            </span>
+            <h1 className="text-3xl sm:text-5xl font-black tracking-widest text-white uppercase mt-2">
+              {user.name}
+            </h1>
+            <p className="text-xs text-neutral-500 tracking-widest font-sans font-light">{user.email} <span className="text-neutral-700 mx-2">|</span> ID: VSP-2077X</p>
           </div>
-
-          <div className="flex items-center gap-4">
-            <div className="bg-neutral-900/80 border border-white/10 px-6 py-4 rounded-2xl flex items-center gap-4">
-              <span className="text-2xl">💳</span>
-              <div>
-                <span className="text-[10px] font-mono text-neutral-500 uppercase block">Quantum Wallet</span>
-                <span className="text-sm font-bold font-mono text-emerald-400">$1,450.00</span>
-              </div>
-            </div>
-            <button 
-              onClick={logout} 
-              className="px-5 py-4 rounded-2xl border border-red-500/20 bg-red-500/5 text-red-400 text-xs font-semibold hover:bg-red-500/10 transition"
-            >
-              Logout
+          
+          <div className="w-full md:w-auto p-5 rounded-2xl bg-black/60 border border-white/5 backdrop-blur-md text-left md:text-right shadow-xl shrink-0">
+            <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold">Encrypted Balance</p>
+            <p className="text-3xl font-black text-white mt-1 tracking-wider">${user.wallet.toFixed(2)}</p>
+            <button onClick={() => alert("Terminal node payment interface initialization offline.")} className="mt-3 w-full text-[10px] font-bold uppercase tracking-widest py-2 rounded-xl bg-white/[0.02] hover:bg-white hover:text-black border border-white/10 transition-all duration-300 text-neutral-300">
+              Sync Topup Funds
             </button>
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex flex-wrap gap-3 border-b border-white/10 pb-4">
-          <button 
-            onClick={() => setActiveTab("orders")}
-            className={`px-5 py-2.5 rounded-full text-xs font-semibold transition ${activeTab === "orders" ? "bg-white text-black" : "bg-white/5 text-neutral-400 hover:text-white"}`}
-          >
-            📦 My Orders & Tracking ({user.orders?.length || 0})
-          </button>
-          <button 
-            onClick={() => setActiveTab("addresses")}
-            className={`px-5 py-2.5 rounded-full text-xs font-semibold transition ${activeTab === "addresses" ? "bg-white text-black" : "bg-white/5 text-neutral-400 hover:text-white"}`}
-          >
-            📍 Saved Addresses
-          </button>
-          <button 
-            onClick={() => setActiveTab("payments")}
-            className={`px-5 py-2.5 rounded-full text-xs font-semibold transition ${activeTab === "payments" ? "bg-white text-black" : "bg-white/5 text-neutral-400 hover:text-white"}`}
-          >
-            💳 Saved Payment Methods
-          </button>
-          <button 
-            onClick={() => setActiveTab("edit")}
-            className={`px-5 py-2.5 rounded-full text-xs font-semibold transition ${activeTab === "edit" ? "bg-white text-black" : "bg-white/5 text-neutral-400 hover:text-white"}`}
-          >
-            ⚙️ Edit Profile
-          </button>
-        </div>
+        {/* Triple Action Dashboard Nodes System Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Identity Matrix Configuration Box */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-zinc-950/50 border border-white/5 backdrop-blur-2xl shadow-xl flex flex-col justify-between">
+            <div>
+              <div className="flex justify-between items-center border-b border-white/5 pb-4 mb-6">
+                <h3 className="text-xs font-black tracking-widest uppercase text-neutral-400">1. Identity Matrix</h3>
+                <button onClick={() => setIsEditing(!isEditing)} className="text-[10px] text-zinc-400 hover:text-white font-bold uppercase tracking-widest transition">
+                  {isEditing ? "✕ Abort" : "Modify"}
+                </button>
+              </div>
 
-        {/* Tab 1: Dynamic Orders & Tracking List */}
-        {activeTab === "orders" && (
-          <div className="space-y-8 animate-fadeIn">
-            {user.orders && user.orders.length > 0 ? (
-              user.orders.map((order, idx) => (
-                <div key={idx} className="bg-white/[0.01] border border-white/10 rounded-3xl p-8 backdrop-blur-sm space-y-6">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-white/5 pb-4">
-                    <div>
-                      <span className="text-xs font-mono text-neutral-500">Order ID: <span className="text-white">{order.id}</span> • Date: {order.date}</span>
-                      <h2 className="text-xl font-bold text-emerald-400 font-mono mt-1">Total: {order.total}</h2>
-                    </div>
-                    <span className="px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono text-emerald-400">
-                      {order.status}
-                    </span>
+              {isEditing ? (
+                <form onSubmit={handleSaveProfile} className="space-y-4 text-xs">
+                  <div>
+                    <label className="text-neutral-500 block mb-1 uppercase tracking-wider text-[9px]">Operator Name</label>
+                    <input type="text" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="w-full p-3 rounded-xl bg-black/80 border border-white/10 text-white focus:outline-none focus:border-white transition font-mono" required />
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative pt-2">
-                    {order.steps.map((step, sIdx) => (
-                      <div key={sIdx} className={`p-4 rounded-2xl border ${step.active ? 'bg-neutral-950/80 border-emerald-500/30' : 'bg-neutral-950/40 border-white/5 opacity-50'}`}>
-                        <div className={`w-3 h-3 rounded-full mb-3 ${step.active ? 'bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]' : 'bg-neutral-700'}`}></div>
-                        <h4 className="font-semibold text-sm mb-1">{step.title}</h4>
-                        <p className="text-xs text-neutral-400">{step.desc}</p>
-                      </div>
-                    ))}
+                  <div>
+                    <label className="text-neutral-500 block mb-1 uppercase tracking-wider text-[9px]">Email Node</label>
+                    <input type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} className="w-full p-3 rounded-xl bg-black/80 border border-white/10 text-white focus:outline-none focus:border-white transition font-mono" required />
+                  </div>
+                  <div>
+                    <label className="text-neutral-500 block mb-1 uppercase tracking-wider text-[9px]">Secure Phone Line</label>
+                    <input type="text" value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} className="w-full p-3 rounded-xl bg-black/80 border border-white/10 text-white focus:outline-none focus:border-white transition font-mono" required />
+                  </div>
+                  <button type="submit" className="w-full py-3 rounded-xl bg-white text-black font-black hover:bg-neutral-200 transition-all duration-300 uppercase tracking-widest mt-4">
+                    Commit Changes
+                  </button>
+                </form>
+              ) : (
+                <div className="space-y-5 text-xs text-neutral-300">
+                  <div>
+                    <p className="text-[9px] text-neutral-600 uppercase tracking-widest mb-1">Assigned Username</p>
+                    <p className="font-bold text-white tracking-wide text-sm">{user.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-[9px] text-neutral-600 uppercase tracking-widest mb-1">Communication String</p>
+                    <p className="font-bold text-neutral-200 tracking-wide">{user.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-[9px] text-neutral-600 uppercase tracking-widest mb-1">Verification Code Node</p>
+                    <p className="font-bold text-neutral-200 tracking-wide">{user.phone}</p>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-16 bg-white/[0.01] border border-white/10 rounded-3xl">
-                <p className="text-neutral-400 text-sm">No orders placed yet.</p>
-              </div>
+              )}
+            </div>
+
+            {!isEditing && (
+              <button onClick={handleLogout} className="mt-8 w-full py-3 rounded-xl bg-zinc-900/60 hover:bg-red-950/20 border border-white/5 hover:border-red-900/30 text-neutral-400 hover:text-red-400 font-bold text-xs transition-all duration-300 uppercase tracking-widest">
+                Terminate Grid Session (Logout)
+              </button>
             )}
           </div>
-        )}
 
-        {/* Tab 2: Saved Addresses */}
-        {activeTab === "addresses" && (
-          <div className="space-y-4 animate-fadeIn">
-            <div className="bg-white/[0.01] border border-white/10 rounded-3xl p-6 backdrop-blur-sm flex justify-between items-center">
-              <div className="space-y-1">
-                <span className="px-3 py-1 rounded-full bg-white/10 text-[10px] font-mono text-emerald-400">Default Shipping Address</span>
-                <h3 className="font-semibold text-base mt-2">{user.name}</h3>
-                <p className="text-sm text-neutral-400">{user.address || "Sector V, Salt Lake, Kolkata, 700091"}</p>
-                <p className="text-xs text-neutral-500 font-mono">Phone: {user.phone || "+91 98765 43210"}</p>
+          {/* Delivery Vector Node Box */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-zinc-950/50 border border-white/5 backdrop-blur-2xl shadow-xl flex flex-col justify-between">
+            <div>
+              <div className="flex justify-between items-center border-b border-white/5 pb-4 mb-6">
+                <h3 className="text-xs font-black tracking-widest uppercase text-neutral-400">2. Delivery Vector</h3>
+                <button 
+                  onClick={() => {
+                    const newStreet = prompt("Enter modifications for grid vector destination:", address.street);
+                    if (newStreet) setAddress({ ...address, street: newStreet });
+                  }}
+                  className="text-[10px] text-zinc-400 hover:text-white font-bold uppercase tracking-widest transition"
+                >
+                  Edit Path
+                </button>
               </div>
-              <button onClick={() => setActiveTab("edit")} className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold hover:bg-white/10 transition">Edit</button>
-            </div>
-          </div>
-        )}
-
-        {/* Tab 3: Saved Payment Methods */}
-        {activeTab === "payments" && (
-          <div className="space-y-4 animate-fadeIn">
-            <div className="bg-white/[0.01] border border-white/10 rounded-3xl p-6 backdrop-blur-sm flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-neutral-900 border border-white/10 flex items-center justify-center font-bold font-mono text-emerald-400">
-                  VISA
-                </div>
-                <div>
-                  <h4 className="font-semibold text-sm">Quantum Infinite Card</h4>
-                  <p className="text-xs font-mono text-neutral-400">•••• •••• •••• 9842 • Exp 08/29</p>
-                </div>
+              <div className="bg-black/40 rounded-2xl p-5 border border-white/5 space-y-4 shadow-inner">
+                <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold">Primary Location Mapping:</p>
+                <p className="text-xs text-neutral-300 leading-relaxed font-sans font-light">
+                  {address.street}<br/>
+                  {address.city}, {address.state}<br/>
+                  Sector Code Reference: <span className="font-mono font-bold text-white">{address.pincode}</span>
+                </p>
               </div>
-              <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono text-emerald-400">Default</span>
             </div>
-          </div>
-        )}
-
-        {/* Tab 4: Edit Profile */}
-        {activeTab === "edit" && (
-          <div className="bg-white/[0.01] border border-white/10 rounded-3xl p-8 backdrop-blur-sm animate-fadeIn">
-            <h3 className="text-lg font-semibold mb-6">Edit Personal Information</h3>
-            {successMsg && <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">{successMsg}</div>}
             
-            <form onSubmit={handleUpdateProfile} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-mono uppercase text-neutral-400 mb-2">Full Name</label>
-                  <input 
-                    type="text" 
-                    value={editName} 
-                    onChange={(e) => setEditName(e.target.value)} 
-                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-white transition" 
-                    required 
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-mono uppercase text-neutral-400 mb-2">Email Address</label>
-                  <input 
-                    type="email" 
-                    value={editEmail} 
-                    onChange={(e) => setEditEmail(e.target.value)} 
-                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-white transition" 
-                    required 
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-mono uppercase text-neutral-400 mb-2">Phone Number</label>
-                <input 
-                  type="text" 
-                  value={editPhone} 
-                  onChange={(e) => setEditPhone(e.target.value)} 
-                  className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-white transition" 
-                  required 
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-mono uppercase text-neutral-400 mb-2">Default Address</label>
-                <input 
-                  type="text" 
-                  value={editAddress} 
-                  onChange={(e) => setEditAddress(e.target.value)} 
-                  className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-white transition" 
-                  required 
-                />
-              </div>
-              <button type="submit" className="px-8 py-3.5 rounded-full bg-white text-black font-semibold hover:bg-neutral-200 transition text-sm">
-                Save Changes & Update Avatar
-              </button>
-            </form>
+            <Link href="/products" className="mt-6 w-full py-3 text-center rounded-xl bg-white/[0.02] hover:bg-white/[0.08] border border-white/10 text-neutral-200 font-bold text-xs uppercase tracking-widest transition-all duration-200">
+              Deploy Shopping Interface
+            </Link>
           </div>
-        )}
 
-      </div>
-    </main>
+          {/* Vault Secure Payments Storage Box */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-zinc-950/50 border border-white/5 backdrop-blur-2xl shadow-xl flex flex-col justify-between">
+            <div>
+              <div className="flex justify-between items-center border-b border-white/5 pb-4 mb-6">
+                <h3 className="text-xs font-black tracking-widest uppercase text-neutral-400">3. Vault Secure Payments</h3>
+                <span className="text-[9px] text-neutral-600 uppercase tracking-widest font-bold">Encrypted</span>
+              </div>
+              
+              <div className="space-y-3">
+                {paymentMethods.map((pm) => (
+                  <div key={pm.id} className="p-4 rounded-xl bg-black/40 border border-white/5 flex justify-between items-center text-xs">
+                    <div>
+                      <h4 className="font-bold text-white text-[11px]">{pm.type}</h4>
+                      <p className="text-[10px] text-neutral-500 font-sans mt-0.5">Exp Node: {pm.expiry}</p>
+                    </div>
+                    <span className="px-2 py-1 rounded bg-white/[0.03] border border-white/5 text-neutral-400 tracking-wider text-[10px] font-bold">
+                      •••• {pm.last4}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button onClick={() => alert("Vault connection offline.")} className="mt-6 w-full py-3 rounded-xl bg-zinc-900/40 border border-white/5 text-neutral-500 font-bold text-xs uppercase tracking-widest cursor-not-allowed">
+              + Insert New Token Card
+            </button>
+          </div>
+
+        </div>
+
+        {/* OPERATION TRANSACTION SUMMARY LOGS (My Orders Layout) */}
+        <div className="pt-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b border-white/5 pb-4 mb-6 gap-2">
+            <div>
+              <h3 className="text-xl sm:text-2xl font-black tracking-widest uppercase text-white">System Operations Log</h3>
+              <p className="text-[10px] text-neutral-500 mt-1 uppercase tracking-widest">Real-time status updates from Vesper nodes</p>
+            </div>
+            <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+              <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold">[{orders.length} Nodes Placed]</span>
+              <Link href="/order-tracking" className="text-[10px] text-zinc-400 hover:text-white underline uppercase tracking-widest transition">Live Tracking Utility</Link>
+            </div>
+          </div>
+
+          {orders.length === 0 ? (
+            <div className="p-16 rounded-3xl bg-zinc-950/20 border border-white/5 text-center text-neutral-500 text-xs uppercase tracking-widest shadow-inner">
+              0 Dynamic transactions detected in hardware database. Place an order to sync records.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {orders.map((order, index) => (
+                <div key={index} className="p-6 rounded-2xl bg-gradient-to-b from-zinc-950 to-black/90 border border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 backdrop-blur-xl hover:border-white/20 transition-all duration-300 shadow-xl">
+                  
+                  <div className="space-y-1">
+                    <p className="text-[9px] text-neutral-600 uppercase tracking-widest">Transaction Reference</p>
+                    <p className="font-black text-white text-base tracking-widest">{order.id}</p>
+                    <p className="text-[10px] text-neutral-400 tracking-wider">Stamp Date: {order.date}</p>
+                  </div>
+
+                  <div className="flex-1 md:px-12 w-full space-y-2">
+                    <p className="text-[9px] text-neutral-600 uppercase tracking-widest">Cargo Manifest</p>
+                    <div className="max-h-20 overflow-y-auto space-y-1 pr-2 custom-scrollbar text-xs text-neutral-400 font-sans font-light">
+                      {Array.isArray(order.items) ? order.items.map((it: any, idx: number) => (
+                        <div key={idx} className="flex justify-between border-b border-white/[0.02] pb-0.5">
+                          <span>• {it.name || it.title}</span>
+                          <span className="font-mono text-[10px] text-neutral-500">x{it.quantity || 1}</span>
+                        </div>
+                      )) : <span>Standard System Node Payload</span>}
+                    </div>
+                  </div>
+
+                  <div className="w-full md:w-auto flex md:flex-col justify-between items-center md:items-end gap-2 border-t md:border-t-0 border-white/5 pt-4 md:pt-0">
+                    <div>
+                      <p className="text-[9px] text-neutral-600 uppercase tracking-widest md:text-right">Operational Status</p>
+                      <span className="mt-1 inline-block px-2.5 py-0.5 rounded bg-white/[0.04] text-white border border-white/10 font-bold text-[9px] uppercase tracking-widest">
+                        {order.status || "Processing"}
+                      </span>
+                    </div>
+                    
+                    <div className="text-right bg-black/50 p-3 rounded-xl border border-white/5 shrink-0 min-w-[120px] mt-2">
+                      <p className="text-[9px] text-neutral-600 uppercase tracking-widest">Net Value</p>
+                      <p className="text-lg font-black text-white tracking-wider">${order.total}</p>
+                    </div>
+                  </div>
+
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+      </main>
+    </div>
   );
 }

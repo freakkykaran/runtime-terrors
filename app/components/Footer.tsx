@@ -1,48 +1,62 @@
-"use client";
-
-import { useState } from "react";
+import Link from "next/link";
 
 export default function Footer() {
-  const [modalContent, setModalContent] = useState<string | null>(null);
-
-  const openModal = (type: string) => {
-    setModalContent(type);
-  };
-
   return (
-    <footer className="bg-black border-t border-white/5 py-16 px-6 text-neutral-500 text-xs">
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-        <div>
-          <p className="font-mono tracking-widest text-white mb-2">AURA X ECOSYSTEM</p>
-          <p>© 2026 Vesper 🕷 Technologies Inc. All quantum rights reserved.</p>
-        </div>
-
-        <div className="flex flex-wrap gap-6 font-medium text-neutral-400">
-          <button onClick={() => openModal("privacy")} className="hover:text-white transition">Privacy Policy</button>
-          <button onClick={() => openModal("terms")} className="hover:text-white transition">Terms of Service</button>
-          <button onClick={() => openModal("warranty")} className="hover:text-white transition">Quantum Warranty</button>
-        </div>
-      </div>
-
-      {/* Modal Popup */}
-      {modalContent && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-6">
-          <div className="bg-neutral-950 border border-white/10 rounded-3xl max-w-lg w-full p-8 relative text-white space-y-4">
-            <h3 className="text-xl font-bold capitalize">{modalContent.replace("-", " ")}</h3>
-            <p className="text-neutral-400 text-sm font-light leading-relaxed">
-              {modalContent === "privacy" && "Your data telemetry is protected under 256-bit quantum encryption. We never share your shipping or biometric records with third-party entities."}
-              {modalContent === "terms" && "By accessing the Vesper 🕷 Ecosystem, you agree to adhere to our aerospace-grade operational protocols and localized distribution guidelines."}
-              {modalContent === "warranty" && "All Vesper 🕷 devices come with a 3-year global quantum warranty covering hardware degradation, circuit latency, and accidental drop protection."}
+    <footer className="bg-[#020202] border-t border-white/5 pt-16 pb-8 font-mono">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+          
+          {/* Brand Column */}
+          <div className="md:col-span-1">
+            <Link href="/" className="text-xl font-black tracking-widest text-white uppercase flex items-center gap-2 mb-4">
+              <span className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">🕷️</span>
+              Vesper X
+            </Link>
+            <p className="text-[10px] text-neutral-500 uppercase tracking-widest leading-relaxed">
+              Precision engineered aerospace-grade hardware. Designed in the shadows, built for the grid.
             </p>
-            <button 
-              onClick={() => setModalContent(null)}
-              className="mt-6 w-full py-3 rounded-full bg-white text-black font-semibold hover:bg-neutral-200 transition text-xs"
-            >
-              Close Policy
-            </button>
+          </div>
+
+          {/* Nav Column 1 */}
+          <div>
+            <h4 className="text-white text-xs font-bold uppercase tracking-widest mb-4">System Links</h4>
+            <ul className="space-y-3 text-[10px] text-neutral-500 uppercase tracking-widest">
+              <li><Link href="/products" className="hover:text-white transition">Hardware Catalog</Link></li>
+              <li><Link href="/compare" className="hover:text-white transition">Node Comparison</Link></li>
+              <li><Link href="/profile" className="hover:text-white transition">Command Terminal</Link></li>
+            </ul>
+          </div>
+
+          {/* Nav Column 2 (Legal & Policies - IDEA IMPLEMENTED) */}
+          <div>
+            <h4 className="text-white text-xs font-bold uppercase tracking-widest mb-4">Protocols</h4>
+            <ul className="space-y-3 text-[10px] text-neutral-500 uppercase tracking-widest">
+              <li><Link href="#" className="hover:text-white transition">Privacy Matrix</Link></li>
+              <li><Link href="#" className="hover:text-white transition">Terms of Operation</Link></li>
+              <li><Link href="#" className="hover:text-white transition">Return Policy (14-Days)</Link></li>
+            </ul>
+          </div>
+
+          {/* Contact Column */}
+          <div>
+            <h4 className="text-white text-xs font-bold uppercase tracking-widest mb-4">Comm Link</h4>
+            <ul className="space-y-3 text-[10px] text-neutral-500 uppercase tracking-widest">
+              <li>Support: +1 (800) VSP-X99</li>
+              <li>Email: support@vesper.io</li>
+              <li>Grid: Sector 9, Neo-Kolkata</li>
+            </ul>
           </div>
         </div>
-      )}
+
+        <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[9px] text-neutral-600 uppercase tracking-widest">
+          <p>© 2026 VESPER X ECOSYSTEM. ALL NODES SECURED.</p>
+          <div className="flex gap-4">
+            <span className="hover:text-white cursor-pointer transition">INSTAGRAM</span>
+            <span className="hover:text-white cursor-pointer transition">TWITTER / X</span>
+            <span className="hover:text-white cursor-pointer transition">GITHUB</span>
+          </div>
+        </div>
+      </div>
     </footer>
   );
 }

@@ -4,132 +4,167 @@ import { useState } from "react";
 import Link from "next/link";
 
 export default function ContactPage() {
-  const [submitted, setSubmitted] = useState(false);
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
+  const [showPopup, setShowPopup] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    // Simulate API logic delay if needed, then trigger popup
+    setShowPopup(true);
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
+    setFormData({ name: "", email: "", subject: "", message: "" }); // Reset form
   };
 
   return (
-    <main className="min-h-screen bg-black text-white px-6 pt-32 pb-24 relative overflow-hidden">
-      {/* Background Ambient Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-neutral-900/40 rounded-full blur-[150px] pointer-events-none opacity-50"></div>
-
-      <div className="max-w-6xl mx-auto relative z-10">
+    <div className="min-h-screen bg-[#020202] text-white font-sans p-4 sm:p-8 selection:bg-neutral-800 selection:text-white relative">
+      <div className="max-w-5xl mx-auto space-y-12 pb-20">
         
-        {/* Header */}
-        <div className="mb-16 border-b border-white/5 pb-10 text-center md:text-left">
-          <span className="text-xs font-mono tracking-[0.3em] uppercase text-neutral-500 mb-2 block">Get in Touch</span>
-          <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-white mb-4">
-            We are here for you.
-          </h1>
-          <p className="text-neutral-400 max-w-xl font-light text-lg">
-            Have questions about the Vesper 🕷 Ecosystem, quantum shipping, or bulk enterprise procurement? Reach out to our concierge team.
-          </p>
+        {/* Header Node */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zinc-950/60 border border-white/5 p-6 sm:p-10 rounded-3xl backdrop-blur-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)]">
+          <div>
+            <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-widest text-white font-mono">
+              Secure <span className="text-zinc-500">Comm Link</span>
+            </h1>
+            <p className="text-xs text-neutral-400 mt-2 uppercase tracking-wider font-semibold font-mono">
+              Vesper Concierge is online 24/7. Establish connection below.
+            </p>
+          </div>
+          <div className="hidden sm:flex items-center gap-3 bg-black/50 px-4 py-2 rounded-xl border border-white/5">
+            <span className="w-2 h-2 rounded-full bg-neutral-400 animate-pulse"></span>
+            <span className="text-[10px] text-neutral-300 font-mono tracking-widest uppercase">System Online</span>
+          </div>
         </div>
 
-        {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* Left Side: Contact Details */}
-          <div className="space-y-8">
-            <div className="bg-white/[0.01] border border-white/5 rounded-3xl p-8 backdrop-blur-sm">
-              <h3 className="text-xl font-semibold mb-6">Global Headquarters</h3>
-              <p className="text-neutral-400 text-sm leading-relaxed mb-6 font-light">
-                Vesper 🕷 Tech Innovation Hub<br />
-                Silicon Tower, Sector V, Salt Lake<br />
-                Kolkata, WB 700091, India
-              </p>
-              <div className="space-y-3 text-sm text-neutral-300">
-                <div className="flex items-center gap-3">
-                  <span className="text-neutral-500 font-mono">Email:</span>
-                  <span className="text-white">support@aurax.tech</span>
+          {/* Contact Details Panel */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="p-8 rounded-3xl bg-zinc-950/40 border border-white/5 backdrop-blur-2xl shadow-xl h-full flex flex-col justify-between">
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-[10px] font-black tracking-widest uppercase text-neutral-500 mb-2 font-mono">Direct Channel</h3>
+                  <p className="text-sm font-bold text-white tracking-widest font-mono">support@vesper.io</p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-neutral-500 font-mono">Helpline:</span>
-                  <span className="text-white">+91 (800) AURA-X-PRO</span>
+                <div>
+                  <h3 className="text-[10px] font-black tracking-widest uppercase text-neutral-500 mb-2 font-mono">Priority Voice</h3>
+                  <p className="text-sm font-bold text-white tracking-widest font-mono">+1 (800) VSP-X99</p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-neutral-500 font-mono">Hours:</span>
-                  <span className="text-white">24/7 Quantum Concierge Support</span>
+                <div>
+                  <h3 className="text-[10px] font-black tracking-widest uppercase text-neutral-500 mb-2 font-mono">HQ Coordinates</h3>
+                  <p className="text-xs text-neutral-300 leading-relaxed font-light">
+                    Sector 9, Vesper Tower<br/>
+                    Neo-Kolkata Grid<br/>
+                    India - 700001
+                  </p>
                 </div>
               </div>
-            </div>
-
-            <div className="bg-white/[0.01] border border-white/5 rounded-3xl p-8 backdrop-blur-sm">
-              <h3 className="text-xl font-semibold mb-3">Press & Media</h3>
-              <p className="text-neutral-400 text-sm font-light mb-4">
-                For media inquiries, hardware review units, or partnership opportunities.
-              </p>
-              <span className="text-sm font-mono text-white underline cursor-pointer">media@aurax.tech</span>
+              <div className="pt-8 mt-8 border-t border-white/5">
+                <p className="text-[9px] text-neutral-600 uppercase tracking-widest font-mono">Average Response Time: &lt; 15 Minutes</p>
+              </div>
             </div>
           </div>
 
-          {/* Right Side: Contact Form */}
-          <div className="bg-white/[0.01] border border-white/5 rounded-3xl p-8 md:p-10 backdrop-blur-sm">
-            <h3 className="text-2xl font-semibold mb-6">Send us a Message</h3>
-
-            {submitted ? (
-              <div className="py-16 text-center space-y-4">
-                <div className="w-16 h-16 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-2xl">
-                  ✓
-                </div>
-                <h4 className="text-xl font-medium">Message Dispatched</h4>
-                <p className="text-neutral-400 text-sm max-w-sm mx-auto font-light">
-                  Thank you. Our quantum support unit has received your transmission and will reply within 2 hours.
-                </p>
-                <button 
-                  onClick={() => setSubmitted(false)}
-                  className="mt-4 text-xs bg-white text-black px-6 py-2.5 rounded-full font-medium hover:bg-neutral-200 transition"
-                >
-                  Send Another Message
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Secure Form Panel */}
+          <div className="lg:col-span-2">
+            <form onSubmit={handleSubmit} className="p-8 rounded-3xl bg-gradient-to-br from-zinc-950/70 to-black border border-white/5 backdrop-blur-3xl shadow-2xl space-y-6">
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-mono uppercase text-neutral-400 mb-2">Your Full Name</label>
+                  <label className="text-neutral-500 block mb-2 font-mono uppercase tracking-wider text-[10px]">Operator Name</label>
                   <input 
-                    required 
                     type="text" 
-                    placeholder="Karan Kumar" 
-                    className="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neutral-400 transition-colors"
+                    required 
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    placeholder="Enter your designation" 
+                    className="w-full p-4 rounded-xl bg-black/80 border border-white/5 text-white focus:outline-none focus:border-white/40 transition font-sans text-sm placeholder:text-neutral-700" 
                   />
                 </div>
-
                 <div>
-                  <label className="block text-xs font-mono uppercase text-neutral-400 mb-2">Email Address</label>
+                  <label className="text-neutral-500 block mb-2 font-mono uppercase tracking-wider text-[10px]">Return Ping (Email)</label>
                   <input 
-                    required 
                     type="email" 
-                    placeholder="karan@example.com" 
-                    className="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neutral-400 transition-colors"
+                    required 
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    placeholder="name@node.com" 
+                    className="w-full p-4 rounded-xl bg-black/80 border border-white/5 text-white focus:outline-none focus:border-white/40 transition font-sans text-sm placeholder:text-neutral-700" 
                   />
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-xs font-mono uppercase text-neutral-400 mb-2">Message</label>
-                  <textarea 
-                    required 
-                    rows={4} 
-                    placeholder="Type your inquiry here..." 
-                    className="w-full bg-white/[0.02] border border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-neutral-400 transition-colors resize-none"
-                  ></textarea>
-                </div>
+              <div>
+                <label className="text-neutral-500 block mb-2 font-mono uppercase tracking-wider text-[10px]">Subject Vector</label>
+                <input 
+                  type="text" 
+                  required 
+                  value={formData.subject}
+                  onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                  placeholder="State your objective" 
+                  className="w-full p-4 rounded-xl bg-black/80 border border-white/5 text-white focus:outline-none focus:border-white/40 transition font-sans text-sm placeholder:text-neutral-700" 
+                />
+              </div>
 
-                <button 
-                  type="submit" 
-                  className="w-full py-4 rounded-full bg-white text-black font-semibold hover:bg-neutral-200 transition duration-300 shadow-xl"
-                >
-                  Transmit Message
-                </button>
-              </form>
-            )}
+              <div>
+                <label className="text-neutral-500 block mb-2 font-mono uppercase tracking-wider text-[10px]">Encrypted Message</label>
+                <textarea 
+                  required 
+                  rows={5}
+                  value={formData.message}
+                  onChange={(e) => setFormData({...formData, message: e.target.value})}
+                  placeholder="Transmit your message here..." 
+                  className="w-full p-4 rounded-xl bg-black/80 border border-white/5 text-white focus:outline-none focus:border-white/40 transition font-sans text-sm placeholder:text-neutral-700 resize-none" 
+                />
+              </div>
+
+              <button 
+                type="submit" 
+                className="w-full py-4 rounded-xl bg-white hover:bg-neutral-200 text-black font-black text-xs transition-all duration-300 uppercase tracking-widest active:scale-98 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.3)] font-mono mt-4"
+              >
+                Transmit Signal
+              </button>
+            </form>
           </div>
-
         </div>
       </div>
-    </main>
+
+      {/* ================= SUCCESS POPUP MODAL (YOUR BRILLIANT IDEA) ================= */}
+      {showPopup && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          {/* Blurred Background Overlay */}
+          <div 
+            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            onClick={closePopup}
+          ></div>
+          
+          {/* Glassmorphic Popup Card */}
+          <div className="relative z-10 w-full max-w-md p-8 rounded-3xl bg-gradient-to-b from-zinc-900 to-black border border-white/10 shadow-[0_0_50px_rgba(255,255,255,0.05)] text-center space-y-6">
+            
+            <div className="w-16 h-16 mx-auto rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-inner">
+              <span className="text-2xl drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">✓</span>
+            </div>
+            
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black tracking-widest text-white uppercase font-mono mb-2">
+                Signal <span className="text-neutral-500">Received</span>
+              </h2>
+              <p className="text-xs text-neutral-400 font-sans leading-relaxed">
+                Thank you, Operator. Your encrypted message has been securely transmitted to the Vesper Concierge node. We will return your ping shortly.
+              </p>
+            </div>
+
+            <button 
+              onClick={closePopup}
+              className="w-full py-3 rounded-xl bg-zinc-900/80 hover:bg-white hover:text-black border border-white/10 text-white font-bold text-[10px] transition-all duration-300 uppercase tracking-widest active:scale-95 font-mono shadow-md"
+            >
+              Close Connection
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
