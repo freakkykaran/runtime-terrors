@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
-export default function CartPage() {
+export default function CheckoutPage() {
   const [cartItems, setCartItems] = useState([
     {
       id: 1,
@@ -53,7 +53,7 @@ export default function CartPage() {
     <div className="min-h-screen bg-black text-white font-mono selection:bg-emerald-500 selection:text-black">
       <main className="max-w-6xl mx-auto px-4 sm:px-8 py-12">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-wider uppercase mb-8">
-          Shopping <span className="text-emerald-400">Cart</span> & Checkout
+          Shopping <span className="text-emerald-400">Checkout</span> & Cart
         </h1>
 
         {cartItems.length === 0 ? (
