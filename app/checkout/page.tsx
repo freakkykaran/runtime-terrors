@@ -2,22 +2,41 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useCart } from "../context/CartContext";
 
 export default function CartPage() {
-  const { cart, removeFromCart, updateQuantity } = useCart() as {
-    cart: any[];
-    removeFromCart: (id: any) => void;
-    updateQuantity: (id: any, qty: number) => void;
-  };
+  const [cartItems, setCartItems] = useState([
+    {
+      id: 1,
+      name: "Vesper X Masterpiece (Titanium Edition)",
+      price: 1299,
+      quantity: 1,
+      image: "🕷️",
+    }
+  ]);
 
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
   const [couponMessage, setCouponMessage] = useState("");
 
+  const handleQuantityChange = (id: number, delta: number) => {
+    setCartItems(
+      cartItems.map((item) => {
+        if (item.id === id) {
+          const newQty = item.quantity + delta;
+          return newQty > 0 ? { ...item, quantity: newQty } : item;
+        }
+        return item;
+      })
+    );
+  };
+
+  const handleRemove = (id: number) => {
+    setCartItems(cartItems.filter((item) => item.id !== id));
+  };
+
   const applyCoupon = () => {
     if (couponCode.toUpperCase() === "VIBE10" || couponCode.toUpperCase() === "RUNTIME10") {
-      setDiscount(0.1); // 10% discount
+      setDiscount(0.1);
       setCouponMessage("Coupon applied successfully! 10% off added.");
     } else {
       setDiscount(0);
@@ -25,9 +44,9 @@ export default function CartPage() {
     }
   };
 
-  const subtotal = cart.reduce((acc, item) => acc + (item.price || 1299) * (item.quantity || 1), 0);
+  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const discountAmount = subtotal * discount;
-  const shipping = cart.length > 0 ? 25 : 0;
+  const shipping = cartItems.length > 0 ? 25 : 0;
   const total = subtotal - discountAmount + shipping;
 
   return (
@@ -37,9 +56,9 @@ export default function CartPage() {
           Shopping <span className="text-emerald-400">Cart</span> & Checkout
         </h1>
 
-        {cart.length === 0 ? (
+        {cartItems.length === 0 ? (
           <div className="text-center py-20 space-y-4">
-            <p className="text-neutral-400 text-sm">Your cart is empty. Add products from the shop!</p>
+            <p className="text-neutral-400 text-sm">Your cart is empty.</p>
             <Link
               href="/shop"
               className="inline-block px-6 py-3 rounded-xl bg-emerald-500 text-black font-bold text-xs hover:bg-emerald-400 transition"
@@ -49,34 +68,33 @@ export default function CartPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Real Cart Items List */}
             <div className="lg:col-span-2 space-y-4">
-              {cart.map((item, index) => (
+              {cartItems.map((item) => (
                 <div
-                  key={item.id || index}
+                  key={item.id}
                   className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/10 gap-4 backdrop-blur-xl"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center text-2xl">
-                      {item.image || "🕷️"}
+                      {item.image}
                     </div>
                     <div>
-                      <h3 className="font-bold text-sm text-white">{item.name || item.title || "Vesper X Product"}</h3>
-                      <p className="text-xs text-emerald-400 mt-1">${item.price || 1299} USD</p>
+                      <h3 className="font-bold text-sm text-white">{item.name}</h3>
+                      <p className="text-xs text-emerald-400 mt-1">${item.price} USD</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
                     <div className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-lg p-1">
                       <button
-                        onClick={() => updateQuantity && updateQuantity(item.id, (item.quantity || 1) - 1)}
+                        onClick={() => handleQuantityChange(item.id, -1)}
                         className="px-2.5 py-1 text-xs text-neutral-300 hover:text-white"
                       >
                         -
                       </button>
-                      <span className="text-xs font-bold px-2">{item.quantity || 1}</span>
+                      <span className="text-xs font-bold px-2">{item.quantity}</span>
                       <button
-                        onClick={() => updateQuantity && updateQuantity(item.id, (item.quantity || 1) + 1)}
+                        onClick={() => handleQuantityChange(item.id, 1)}
                         className="px-2.5 py-1 text-xs text-neutral-300 hover:text-white"
                       >
                         +
@@ -84,7 +102,7 @@ export default function CartPage() {
                     </div>
 
                     <button
-                      onClick={() => removeFromCart && removeFromCart(item.id)}
+                      onClick={() => handleRemove(item.id)}
                       className="text-xs text-red-400 hover:text-red-300 transition"
                     >
                       Remove
@@ -94,7 +112,6 @@ export default function CartPage() {
               ))}
             </div>
 
-            {/* Order Summary & Coupon Box */}
             <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-6 backdrop-blur-xl h-fit">
               <h3 className="text-sm font-bold tracking-wider uppercase text-neutral-300 pb-2 border-b border-white/10">
                 Order Summary
@@ -121,7 +138,6 @@ export default function CartPage() {
                 </div>
               </div>
 
-              {/* Coupon Section */}
               <div className="space-y-2 pt-2">
                 <label className="text-xs text-neutral-400 block">COUPON CODE (Try: VIBE10)</label>
                 <div className="flex gap-2">
