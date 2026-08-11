@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useCart } from "../context/CartContext";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
+// 30 FULL CATALOG MATRIX
 export const PRODUCT_CATALOG = [
   { id: 1, name: "Vesper X Flagship Titanium", price: 1299, image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80", desc: "Aerospace Titanium chassis with quantum neural processor nodes." },
   { id: 2, name: "Vesper Pro Cyberpunk Edition", price: 1099, image: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=600&auto=format&fit=crop&q=80", desc: "Neon holographic backplate with ultra-fast glowing matrix OLED display." },
@@ -38,141 +39,144 @@ export const PRODUCT_CATALOG = [
   { id: 30, name: "Vesper Curved Ultrawide Matrix", price: 1199, image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=600&auto=format&fit=crop&q=80", desc: "Panoramic immersive development display panel running fluid stealth refresh lines." }
 ];
 
-export default function ProductsPage() {
+// 1. DYNAMIC COMPONENT INTEGRATION
+function CatalogContent() {
   const { addToCart, toggleWishlist, wishlist, searchQuery } = useCart() as any;
   const searchParams = useSearchParams();
-  
-  // Sorting State Node
   const [sortBy, setSortBy] = useState("default");
   
   const urlSearch = searchParams.get("search")?.toLowerCase() || "";
   const activeSearch = searchQuery ? searchQuery.toLowerCase() : urlSearch;
 
-  // 1. Filter Matrix
   const filteredProducts = PRODUCT_CATALOG.filter(product => 
     product.name.toLowerCase().includes(activeSearch) || 
     product.desc.toLowerCase().includes(activeSearch)
   );
 
-  // 2. Sort Logic Execution Block
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortBy === "price-low") return a.price - b.price;
     if (sortBy === "price-high") return b.price - a.price;
     if (sortBy === "name-asc") return a.name.localeCompare(b.name);
-    return 0; // default unordered logic
+    return 0;
   });
 
   return (
-    <div className="min-h-screen bg-[#020202] text-white font-sans p-4 sm:p-8 selection:bg-neutral-800 selection:text-white">
-      <div className="max-w-7xl mx-auto space-y-8">
-        
-        {/* Dynamic Dark Matte Glass Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zinc-950/60 border border-white/5 p-6 rounded-2xl backdrop-blur-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)]">
-          <div>
-            <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-widest text-white font-mono">
-              Hardware <span className="text-zinc-400">Catalog</span>
-            </h1>
-            <p className="text-xs text-neutral-500 mt-1 uppercase tracking-wider font-semibold font-mono">
-              System Nodes: {sortedProducts.length} Units Online
-            </p>
-          </div>
-
-          {/* DYNAMIC SORT FILTER DROPDOWN CONTAINER (Pure Smoked Glass Style) */}
-          <div className="flex items-center gap-2 font-mono text-xs w-full sm:w-auto justify-end">
-            <label className="text-neutral-500 text-[10px] uppercase tracking-wider">Sort Engine:</label>
-            <select 
-              value={sortBy} 
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 rounded-xl bg-zinc-900 border border-white/10 text-neutral-200 focus:outline-none focus:border-white/40 backdrop-blur-md cursor-pointer tracking-wider text-xs uppercase transition"
-            >
-              <option value="default">Default Node</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="name-asc">Alphabetical A-Z</option>
-            </select>
-          </div>
+    <div className="space-y-8">
+      {/* Dynamic Dark Matte Glass Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zinc-950/60 border border-white/5 p-6 rounded-2xl backdrop-blur-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)]">
+        <div>
+          <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-widest text-white font-mono">
+            Hardware <span className="text-zinc-400">Catalog</span>
+          </h1>
+          <p className="text-xs text-neutral-500 mt-1 uppercase tracking-wider font-semibold font-mono">
+            System Nodes: {sortedProducts.length} Units Online
+          </p>
         </div>
 
-        {/* ECOSYSTEM ECO-BUNDLE PROMO BANNER (Idea Implemented!) */}
-        <div className="p-4 rounded-xl bg-gradient-to-r from-zinc-950/80 via-zinc-900/40 to-black border border-white/5 backdrop-blur-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-md font-mono text-xs">
-          <div className="flex items-center gap-2">
-            <span className="text-neutral-400">⚡</span>
-            <span className="text-neutral-200 tracking-wide uppercase font-bold">Vesper X Ecosystem Bundle Deal:</span>
-            <span className="text-neutral-400 font-light font-sans">Combine Titanium Phone + Watch S2 + Pods to trigger 15% manual fallback reduction!</span>
-          </div>
-          <span className="text-[10px] bg-white/5 px-2.5 py-1 border border-white/10 rounded-lg text-white font-bold tracking-widest uppercase shrink-0">AUTO_SYNCED</span>
+        <div className="flex items-center gap-2 font-mono text-xs w-full sm:w-auto justify-end">
+          <label className="text-neutral-500 text-[10px] uppercase tracking-wider">Sort Engine:</label>
+          <select 
+            value={sortBy} 
+            onChange={(e) => setSortBy(e.target.value)}
+            className="px-4 py-2 rounded-xl bg-zinc-900 border border-white/10 text-neutral-200 focus:outline-none focus:border-white/40 backdrop-blur-md cursor-pointer tracking-wider text-xs uppercase transition"
+          >
+            <option value="default">Default Node</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="name-asc">Alphabetical A-Z</option>
+          </select>
         </div>
+      </div>
 
-        {sortedProducts.length === 0 ? (
-          <div className="p-16 text-center border border-white/5 rounded-2xl bg-zinc-950/40 backdrop-blur-md shadow-inner">
-            <p className="text-xs text-neutral-500 uppercase tracking-widest font-mono">0 System matches found within network grids.</p>
-          </div>
-        ) : (
-          /* Pure Smoked Glass Box Matrix Grid Layout */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedProducts.map((product) => {
-              const isInWish = Array.isArray(wishlist) && wishlist.some((w: any) => w.id === product.id);
+      {/* ECOSYSTEM ECO-BUNDLE PROMO BANNER */}
+      <div className="p-4 rounded-xl bg-gradient-to-r from-zinc-950/80 via-zinc-900/40 to-black border border-white/5 backdrop-blur-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-md font-mono text-xs">
+        <div className="flex items-center gap-2">
+          <span className="text-neutral-400">⚡</span>
+          <span className="text-neutral-200 tracking-wide uppercase font-bold">Vesper X Ecosystem Bundle Deal:</span>
+          <span className="text-neutral-400 font-light font-sans">Combine Titanium Phone + Watch S2 + Pods to trigger 15% manual fallback reduction!</span>
+        </div>
+        <span className="text-[10px] bg-white/5 px-2.5 py-1 border border-white/10 rounded-lg text-white font-bold tracking-widest uppercase shrink-0">AUTO_SYNCED</span>
+      </div>
 
-              return (
-                <div 
-                  key={product.id} 
-                  className="p-5 rounded-2xl bg-gradient-to-b from-zinc-950/70 to-black border border-white/5 flex flex-col justify-between hover:border-white/20 transition-all duration-300 relative group backdrop-blur-3xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.9)] hover:shadow-black"
+      {sortedProducts.length === 0 ? (
+        <div className="p-16 text-center border border-white/5 rounded-2xl bg-zinc-950/40 backdrop-blur-md shadow-inner">
+          <p className="text-xs text-neutral-500 uppercase tracking-widest font-mono">0 System matches found within network grids.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sortedProducts.map((product) => {
+            const isInWish = Array.isArray(wishlist) && wishlist.some((w: any) => w.id === product.id);
+
+            return (
+              <div 
+                key={product.id} 
+                className="p-5 rounded-2xl bg-gradient-to-b from-zinc-950/70 to-black border border-white/5 flex flex-col justify-between hover:border-white/20 transition-all duration-300 relative group backdrop-blur-3xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.9)] hover:shadow-black"
+              >
+                <button 
+                  type="button"
+                  onClick={() => toggleWishlist(product)}
+                  className="absolute top-4 right-4 z-10 p-2.5 rounded-xl bg-black/60 border border-white/10 backdrop-blur-xl text-xs transition duration-200 hover:border-white/40 active:scale-95 shadow-lg"
                 >
-                  {/* Translucent Glass Wishlist circle node */}
+                  {isInWish ? <span className="text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.7)]">❤️</span> : <span className="opacity-80 group-hover:opacity-100 transition grayscale-0">🖤</span>}
+                </button>
+
+                <div>
+                  <div className="w-full h-52 rounded-xl bg-zinc-950/90 border border-white/5 overflow-hidden flex items-center justify-center mb-4 relative">
+                    <img 
+                      src={product.image} 
+                      alt={product.name} 
+                      className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" 
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80";
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-500"></div>
+                  </div>
+
+                  <h3 className="font-bold text-base text-neutral-100 group-hover:text-white transition-colors duration-200 tracking-wide">{product.name}</h3>
+                  <p className="text-[12px] text-neutral-400 mt-1 line-clamp-2 leading-relaxed font-light font-sans">{product.desc}</p>
+                  <p className="text-sm font-bold text-white mt-4 tracking-widest font-mono">${product.price} USD</p>
+                </div>
+
+                <div className="mt-6 flex gap-2 font-mono">
+                  <Link 
+                    href={`/products/${product.id}`} 
+                    className="flex-1 py-2.5 text-center text-xs bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 rounded-xl transition-all duration-200 font-bold text-neutral-300 hover:text-white active:scale-98 tracking-wider uppercase"
+                  >
+                    Details
+                  </Link>
                   <button 
                     type="button"
-                    onClick={() => toggleWishlist(product)}
-                    className="absolute top-4 right-4 z-10 p-2.5 rounded-xl bg-black/60 border border-white/10 backdrop-blur-xl text-xs transition duration-200 hover:border-white/40 active:scale-95 shadow-lg"
+                    onClick={() => {
+                      addToCart(product);
+                      alert(`${product.name} added to cart!`);
+                    }} 
+                    className="px-4 py-2.5 bg-zinc-900/90 hover:bg-white hover:text-black border border-white/10 text-white font-bold text-xs rounded-xl transition-all duration-300 uppercase tracking-widest active:scale-98 shadow-md"
                   >
-                    {isInWish ? <span className="text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.7)]">❤️</span> : <span className="opacity-80 group-hover:opacity-100 transition grayscale-0">🖤</span>}
+                    Add Cart
                   </button>
-
-                  <div>
-                    {/* Dark Glass Frame with ORIGINAL COLORED IMAGE */}
-                    <div className="w-full h-52 rounded-xl bg-zinc-950/90 border border-white/5 overflow-hidden flex items-center justify-center mb-4 relative">
-                      <img 
-                        src={product.image} 
-                        alt={product.name} 
-                        className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" 
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80";
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-500"></div>
-                    </div>
-
-                    {/* Metadata Typography */}
-                    <h3 className="font-bold text-base text-neutral-100 group-hover:text-white transition-colors duration-200 tracking-wide">{product.name}</h3>
-                    <p className="text-[12px] text-neutral-400 mt-1 line-clamp-2 leading-relaxed font-light font-sans">{product.desc}</p>
-                    <p className="text-sm font-bold text-white mt-4 tracking-widest font-mono">${product.price} USD</p>
-                  </div>
-
-                  {/* Stealth Charcoal Matte Glass Buttons Layout */}
-                  <div className="mt-6 flex gap-2 font-mono">
-                    <Link 
-                      href={`/products/${product.id}`} 
-                      className="flex-1 py-2.5 text-center text-xs bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 rounded-xl transition-all duration-200 font-bold text-neutral-300 hover:text-white active:scale-98 tracking-wider uppercase"
-                    >
-                      Details
-                    </Link>
-                    
-                    <button 
-                      type="button"
-                      onClick={() => {
-                        addToCart(product);
-                        alert(`${product.name} added to cart!`);
-                      }} 
-                      className="px-4 py-2.5 bg-zinc-900/90 hover:bg-white hover:text-black border border-white/10 text-white font-bold text-xs rounded-xl transition-all duration-300 uppercase tracking-widest active:scale-98 shadow-md"
-                    >
-                      Add Cart
-                    </button>
-                  </div>
-
                 </div>
-              );
-            })}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 2. MAIN ENTRY COMPONENT EXPORTING SUSPENSE BOUNDARY BLOCK
+export default function ProductsPage() {
+  return (
+    <div className="min-h-screen bg-[#020202] text-white font-sans p-4 sm:p-8 selection:bg-neutral-800 selection:text-white">
+      <div className="max-w-7xl mx-auto">
+        <Suspense fallback={
+          <div className="min-h-[50vh] flex items-center justify-center font-mono">
+            <p className="text-neutral-500 tracking-widest uppercase animate-pulse text-xs">Loading Databank Stream...</p>
           </div>
-        )}
+        }>
+          <CatalogContent />
+        </Suspense>
       </div>
     </div>
   );
